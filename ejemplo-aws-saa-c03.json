@@ -1,0 +1,60 @@
+{
+  "title": "Banco de ejemplo · AWS SAA-C03",
+  "questions": [
+    {
+      "q": "Una empresa necesita almacenar millones de imágenes con acceso poco frecuente pero recuperación en milisegundos. ¿Qué clase de almacenamiento de S3 es la más adecuada?",
+      "options": [
+        "S3 Standard",
+        "S3 Standard-IA (Infrequent Access)",
+        "S3 Glacier Deep Archive",
+        "S3 Glacier Flexible Retrieval"
+      ],
+      "a": [1],
+      "e": "S3 Standard-IA ofrece acceso en milisegundos a menor costo que Standard, ideal para datos accedidos con poca frecuencia. Glacier tiene latencias de minutos a horas."
+    },
+    {
+      "q": "¿Qué servicio permite descubrir, clasificar y proteger datos sensibles en S3 usando machine learning?",
+      "options": [
+        "AWS Macie",
+        "AWS Inspector",
+        "AWS GuardDuty",
+        "AWS Shield"
+      ],
+      "a": [0],
+      "e": "Macie usa ML para detectar PII y datos sensibles en S3. Inspector escanea vulnerabilidades; GuardDuty detecta amenazas; Shield protege contra DDoS."
+    },
+    {
+      "q": "Necesitas exponer una API REST a internet con autenticación, throttling y caching gestionado. ¿Qué servicio usas?",
+      "options": [
+        "Application Load Balancer",
+        "Amazon API Gateway",
+        "Amazon CloudFront",
+        "AWS App Mesh"
+      ],
+      "a": [1],
+      "e": "API Gateway provee gestión completa de APIs REST y WebSocket: auth, throttling, caching, validación de requests y monitoreo nativo."
+    },
+    {
+      "q": "¿Qué dos opciones permiten ejecutar contenedores en AWS sin gestionar servidores? (Elige 2)",
+      "options": [
+        "Amazon ECS con tipo de lanzamiento EC2",
+        "Amazon ECS con tipo de lanzamiento Fargate",
+        "Amazon EKS con nodos gestionados manualmente",
+        "Amazon EKS con Fargate"
+      ],
+      "a": [1, 3],
+      "e": "Fargate es el modo serverless tanto para ECS como para EKS: AWS gestiona el cómputo subyacente."
+    },
+    {
+      "q": "Una aplicación crítica de comercio electrónico necesita una base de datos relacional con failover automático en menos de 60 segundos. ¿Qué arquitectura recomiendas?",
+      "options": [
+        "Amazon RDS Single-AZ con backups automáticos",
+        "Amazon RDS Multi-AZ",
+        "Amazon RDS read replica en otra región",
+        "Amazon DynamoDB con auto-scaling"
+      ],
+      "a": [1],
+      "e": "RDS Multi-AZ mantiene una réplica síncrona en otra AZ y ejecuta failover automático en ~60-120 segundos. Read replicas no hacen failover automático; DynamoDB es NoSQL."
+    }
+  ]
+}

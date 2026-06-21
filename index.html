@@ -1128,11 +1128,11 @@ main section.view-active { display: block; }
           <div class="mode-toggle">
             <button class="mode-option active" data-mode="study" onclick="selectMode('study')">
               <div class="mode-name">Estudio</div>
-              <div class="mode-desc">Feedback al instante</div>
+              <div class="mode-desc">Feedback inmediato · cronómetro al alza · sin presión</div>
             </button>
             <button class="mode-option" data-mode="exam" onclick="selectMode('exam')">
               <div class="mode-name">Simulacro</div>
-              <div class="mode-desc">1h 30m regresivo</div>
+              <div class="mode-desc">Sin feedback · regresivo 1:30:00 · auto-finaliza</div>
             </button>
           </div>
         </div>
@@ -1162,7 +1162,7 @@ main section.view-active { display: block; }
           <span class="quiz-cert" id="quiz-cert-code">—</span>
           <span class="quiz-mode-label" id="quiz-mode-label">—</span>
         </div>
-        <div class="quiz-timer" id="quiz-timer">1:30:00</div>
+        <div class="quiz-timer" id="quiz-timer">--:--:--</div>
       </div>
       <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
       <div id="question-container"></div>
@@ -1245,7 +1245,6 @@ const state = {
   checked: [],
   mode: 'study',
   startTime: 0,
-  remaining: TIMER_SECONDS,
   timerInterval: null,
   customBank: null
 };
@@ -1395,7 +1394,6 @@ function startQuiz() {
   state.answers = Array(state.filtered.length).fill(null);
   state.checked = Array(state.filtered.length).fill(false);
   state.startTime = Date.now();
-  state.remaining = TIMER_SECONDS;
 
   document.getElementById('quiz-cert-code').textContent = state.currentCert ? state.currentCert.code : 'CUSTOM';
   document.getElementById('quiz-mode-label').textContent = state.mode === 'study' ? 'MODO ESTUDIO' : 'MODO SIMULACRO';
@@ -1407,17 +1405,18 @@ function startQuiz() {
 
 function startTimer() {
   stopTimer();
-  state.remaining = TIMER_SECONDS;
+  state.startTime = Date.now();
   updateTimerDisplay();
   state.timerInterval = setInterval(() => {
-    state.remaining--;
     updateTimerDisplay();
-    if (state.remaining <= 0) {
-      stopTimer();
-      state.remaining = 0;
-      updateTimerDisplay();
-      showToast('⏱ Tiempo agotado. Finalizando…');
-      setTimeout(() => finishQuiz(true), 800);
+    // Solo el modo simulacro tiene auto-finalización al llegar a 0
+    if (state.mode === 'exam') {
+      const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
+      if (elapsed >= TIMER_SECONDS) {
+        stopTimer();
+        showToast('⏱ Tiempo agotado. Finalizando…');
+        setTimeout(() => finishQuiz(true), 800);
+      }
     }
   }, 1000);
 }
@@ -1439,12 +1438,20 @@ function updTimerFormat(secs) {
 
 function updateTimerDisplay() {
   const el = document.getElementById('quiz-timer');
-  el.textContent = updTimerFormat(state.remaining);
+  const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
   el.classList.remove('warning', 'critical');
-  if (state.remaining < 60) {
-    el.classList.add('critical');
-  } else if (state.remaining < 600) {
-    el.classList.add('warning');
+  if (state.mode === 'exam') {
+    // Modo simulacro: cuenta regresiva desde 1:30:00
+    const remaining = Math.max(0, TIMER_SECONDS - elapsed);
+    el.textContent = updTimerFormat(remaining);
+    if (remaining < 60) {
+      el.classList.add('critical');
+    } else if (remaining < 600) {
+      el.classList.add('warning');
+    }
+  } else {
+    // Modo estudio: cuenta hacia arriba, sin alertas
+    el.textContent = updTimerFormat(elapsed);
   }
 }
 
@@ -1454,6 +1461,8 @@ function renderQuestion() {
   const isMulti = q.a.length > 1;
   const selected = state.answers[state.current] || [];
   const checked = state.checked[state.current];
+  // Mostrar feedback (verde/rojo + explicación) SOLO en modo estudio después de Comprobar
+  const showFeedback = state.mode === 'study' && checked;
 
   document.getElementById('progress-fill').style.width =
     ((state.current + 1) / state.filtered.length * 100) + '%';
@@ -1470,21 +1479,21 @@ function renderQuestion() {
           const isSel = selected.includes(i);
           const isCorrect = q.a.includes(i);
           let cls = 'option';
-          if (checked) {
+          if (showFeedback) {
             if (isCorrect) cls += ' correct';
             else if (isSel) cls += ' wrong';
           } else if (isSel) {
             cls += ' selected';
           }
           return `
-            <button class="${cls}" ${checked ? 'disabled' : ''} onclick="selectOption(${i}, ${isMulti})">
+            <button class="${cls}" ${showFeedback ? 'disabled' : ''} onclick="selectOption(${i}, ${isMulti})">
               <span class="option-letter">${letter}</span>
               <span class="option-text">${escapeHtml(opt)}</span>
             </button>
           `;
         }).join('')}
       </div>
-      ${checked && state.mode === 'study' ? `
+      ${showFeedback ? `
         <div class="explanation">
           <strong>Explicación</strong>
           ${escapeHtml(q.e || 'Sin explicación.')}
@@ -1500,6 +1509,9 @@ function renderQuestion() {
 }
 
 function selectOption(i, isMulti) {
+  // En modo estudio, una vez comprobada, no se puede cambiar
+  if (state.mode === 'study' && state.checked[state.current]) return;
+
   const q = state.filtered[state.current];
   let sel = state.answers[state.current] || [];
   if (isMulti) {
@@ -1510,10 +1522,6 @@ function selectOption(i, isMulti) {
   }
   state.answers[state.current] = sel;
   renderQuestion();
-  // In exam mode, mark as 'checked' silently so it counts on finish
-  if (state.mode === 'exam') {
-    state.checked[state.current] = true;
-  }
 }
 
 function checkAnswer() {
@@ -1564,8 +1572,9 @@ function showResults() {
   const wrong = total - correct;
   const score = total ? Math.round((correct / total) * 100) : 0;
   const pass = score >= 70;
-  const elapsed = TIMER_SECONDS - state.remaining;
-  const m = Math.floor(elapsed / 60);
+  const elapsed = Math.floor((Date.now() - state.startTime) / 1000);
+  const h = Math.floor(elapsed / 3600);
+  const m = Math.floor((elapsed % 3600) / 60);
   const s = elapsed % 60;
 
   const scoreEl = document.getElementById('result-score');
@@ -1574,8 +1583,9 @@ function showResults() {
   document.getElementById('result-status').textContent = pass ? 'APROBADO' : 'NO APROBADO';
   document.getElementById('stat-correct').textContent = correct;
   document.getElementById('stat-wrong').textContent = wrong;
-  document.getElementById('stat-time').textContent =
-    String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  document.getElementById('stat-time').textContent = h > 0
+    ? `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`
+    : `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 
   document.getElementById('review-container').innerHTML = '';
 }
@@ -1634,7 +1644,6 @@ function retryQuiz() {
   state.answers = Array(state.filtered.length).fill(null);
   state.checked = Array(state.filtered.length).fill(false);
   state.startTime = Date.now();
-  state.remaining = TIMER_SECONDS;
   startTimer();
   renderQuestion();
   navigate('quiz');

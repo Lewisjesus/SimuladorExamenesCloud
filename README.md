@@ -1,135 +1,82 @@
-# Cert Lab · Ing. Lewis Reinoso
+# Cert Lab · Ing. Lewis Reinoso — v2.0
 
-Simulador web de exámenes para certificaciones de **AWS**, **Microsoft Azure** y **Google Cloud Platform**. Inspirado en el simulador de Julián Rodríguez, pero con identidad propia, soporte multi-proveedor y carga de bancos de preguntas en JSON.
+Simulador web de certificaciones cloud (AWS, Azure y Google Cloud) en español, con cronómetro regresivo y banco propio de 450 preguntas originales.
 
-## Características
+## ✨ Novedades v2.0
 
-- **9 certificaciones precargadas** con preguntas de ejemplo:
-  - AWS: CLF-C02, SAA-C03, AIF-C01, DVA-C02
-  - Azure: AZ-900, AZ-104, AI-900
-  - GCP: Cloud Digital Leader, Associate Cloud Engineer
-- **Dos modos**:
-  - **Estudio**: feedback inmediato + explicación tras cada respuesta.
-  - **Simulacro**: sin ayudas, con cronómetro, resultados al final.
-- **Carga JSON personalizada**: agrega tus propios bancos sin tocar el código.
-- **Diseño propio** (tema oscuro, tipografía Space Grotesk + Inter + JetBrains Mono).
-- **100% estático**: un único archivo HTML, listo para GitHub Pages.
-- **Mobile friendly** y respeta `prefers-reduced-motion`.
+- 🎨 **Tema claro** — fondo blanco, paleta profesional.
+- ⏱️ **Cronómetro regresivo de 1h 30m** — empieza en `1:30:00` y va bajando hasta `0:00:00`.
+- 🛑 **Auto-finalización** — cuando el cronómetro llega a `0`, el simulacro termina solo y muestra resultados.
+- 📚 **450 preguntas originales** — 50 por cada una de las 9 certificaciones, en español, con explicaciones.
+- 🟡 **Avisos visuales** — el cronómetro se pone amarillo al quedar < 10 min y rojo (parpadeo) al quedar < 1 min.
 
----
+## 🚀 Despliegue en GitHub Pages
 
-## Cómo desplegar en GitHub Pages
+1. Sube **todos los archivos** (incluyendo la carpeta `data/`) al repo `Lewisjesus/SimuladorExamenesCloud`.
+2. En `Settings → Pages`, branch `main`, folder `/(root)` → Save.
+3. URL: `https://lewisjesus.github.io/SimuladorExamenesCloud/`
 
-1. Crea un repositorio en tu cuenta, por ejemplo `SimuladorExamenCloud`.
-2. Sube el archivo `index.html` a la raíz del repositorio.
-3. En GitHub, ve a **Settings → Pages**.
-4. En **Source**, selecciona la rama (`main`) y la carpeta raíz (`/root`).
-5. Guarda. En ~1 minuto tu sitio estará disponible en:
+> ⚠️ **Importante:** debes subir la carpeta `data/` con sus 9 archivos JSON, sino el sitio cargará vacío.
 
-   ```
-   https://TU-USUARIO.github.io/SimuladorExamenCloud/
-   ```
+## 📁 Estructura de archivos
 
-Si quieres una URL más bonita, crea el repo con el nombre `tu-usuario.github.io` y se publicará en `https://tu-usuario.github.io/`.
+```
+SimuladorExamenesCloud/
+├── index.html                  (UI, estilos, lógica — sin preguntas adentro)
+├── README.md
+└── data/
+    ├── aws-clf-c02.json        (50 preguntas — Cloud Practitioner)
+    ├── aws-saa-c03.json        (50 preguntas — Solutions Architect Associate)
+    ├── aws-aif-c01.json        (50 preguntas — AI Practitioner)
+    ├── aws-dva-c02.json        (50 preguntas — Developer Associate)
+    ├── azure-az-900.json       (50 preguntas — Azure Fundamentals)
+    ├── azure-az-104.json       (50 preguntas — Azure Administrator)
+    ├── azure-ai-900.json       (50 preguntas — Azure AI Fundamentals)
+    ├── gcp-cdl.json            (50 preguntas — Cloud Digital Leader)
+    └── gcp-ace.json            (50 preguntas — Associate Cloud Engineer)
+```
 
----
+## 🎯 Certificaciones incluidas
 
-## Formato del archivo JSON
+| Proveedor | Código   | Nombre                                    | Nivel        | Preguntas |
+|-----------|----------|-------------------------------------------|--------------|-----------|
+| AWS       | CLF-C02  | Cloud Practitioner                        | Foundational | 50        |
+| AWS       | SAA-C03  | Solutions Architect Associate             | Associate    | 50        |
+| AWS       | AIF-C01  | AI Practitioner                           | Foundational | 50        |
+| AWS       | DVA-C02  | Developer Associate                       | Associate    | 50        |
+| Azure     | AZ-900   | Azure Fundamentals                        | Foundational | 50        |
+| Azure     | AZ-104   | Azure Administrator                       | Associate    | 50        |
+| Azure     | AI-900   | Azure AI Fundamentals                     | Foundational | 50        |
+| GCP       | CDL      | Cloud Digital Leader                      | Foundational | 50        |
+| GCP       | ACE      | Associate Cloud Engineer                  | Associate    | 50        |
+| **TOTAL** |          |                                           |              | **450**   |
 
-El simulador acepta varios formatos para máxima compatibilidad. El más simple:
+## 📝 Formato de banco propio (.json)
+
+Si quieres cargar tu propio banco con el botón "Cargar banco propio":
 
 ```json
 {
-  "title": "Mi banco de preguntas AWS SAA-C03",
+  "title": "Mi banco custom",
   "questions": [
     {
-      "q": "¿Qué servicio usarías para almacenar objetos con alta durabilidad?",
-      "options": [
-        "Amazon EBS",
-        "Amazon S3",
-        "Amazon EFS",
-        "Amazon RDS"
-      ],
-      "a": [1],
-      "e": "Amazon S3 ofrece durabilidad de 11 nueves (99.999999999%)."
+      "q": "¿Pregunta aquí?",
+      "options": ["Opción A", "Opción B", "Opción C", "Opción D"],
+      "a": [0],
+      "e": "Explicación de la respuesta correcta."
     }
   ]
 }
 ```
 
-### Campos aceptados (varios alias)
+- `a` acepta índices base-0 (0=A, 1=B, 2=C, 3=D) o letras ("A", "B", etc.).
+- Para múltiple respuesta, usa array: `"a": [0, 2]`.
+- Acepta sinónimos: `question`/`pregunta`, `opciones`/`choices`, `correct`/`correcta`, `explanation`/`explicacion`.
 
-| Campo                 | Alias aceptados                                       | Descripción                                                       |
-| --------------------- | ----------------------------------------------------- | ----------------------------------------------------------------- |
-| `q`                   | `question`, `pregunta`, `text`                        | Enunciado de la pregunta.                                         |
-| `options`             | `opciones`, `choices`, `respuestas`                   | Array de opciones (strings).                                      |
-| `a`                   | `answer`, `correct`, `correcta`                       | Índice(s) de la respuesta correcta (0-based) o letras `"A"`, `"B"`. |
-| `e`                   | `explanation`, `explicacion`, `feedback`              | Explicación opcional que se muestra en modo estudio.              |
+## 💡 Cómo agregar más preguntas
 
-### Múltiple respuesta
-
-Si una pregunta tiene varias respuestas correctas, pasa un array:
-
-```json
-{
-  "q": "¿Qué pilares forman parte del AWS Well-Architected Framework? (Elige 2)",
-  "options": ["Operational Excellence", "Marketing Optimization", "Security", "Brand Awareness"],
-  "a": [0, 2],
-  "e": "Los pilares oficiales incluyen Operational Excellence y Security, entre otros."
-}
-```
-
-### También acepta un array directo
-
-```json
-[
-  { "q": "...", "options": ["A", "B"], "a": [0], "e": "..." },
-  { "q": "...", "options": ["A", "B"], "a": [1], "e": "..." }
-]
-```
+Para añadir, por ejemplo, preguntas a `aws-clf-c02.json`, simplemente edita el archivo en GitHub y agrega más objetos al array `questions`. El sitio se actualiza automáticamente en 1-2 minutos.
 
 ---
 
-## Cómo personalizar la marca
-
-Abre `index.html` y busca estas líneas (al inicio del CSS y HTML):
-
-- Color principal: variable `--accent` (línea ~15, valor `#00D4FF`).
-- Nombre: busca `Ing. Lewis Reinoso` y reemplázalo.
-- Iniciales del logo: busca `<div class="brand-mark">LR</div>` y cámbialo.
-- Título de pestaña: `<title>...</title>`.
-
----
-
-## Cómo agregar más certificaciones precargadas
-
-En el bloque `CERTIFICATIONS` (cerca del final del archivo, dentro del `<script>`) añade entradas como:
-
-```javascript
-'mi-cert-id': {
-  provider: 'aws', // 'aws' | 'azure' | 'gcp'
-  code: 'XYZ-C01',
-  name: 'Mi Nueva Certificación',
-  level: 'associate', // 'foundational' | 'associate' | 'professional' | 'specialty'
-  desc: 'Descripción corta para la tarjeta.',
-},
-```
-
-Y en `QUESTION_BANKS` añade las preguntas:
-
-```javascript
-'mi-cert-id': [
-  { q: '...', options: ['A','B','C','D'], a: [0], e: '...' },
-  ...
-],
-```
-
----
-
-## Aviso
-
-Las preguntas incluidas son originales y de ejemplo educativo. Este simulador **no reproduce exámenes oficiales** ni "dumps". Úsalo como apoyo para practicar conceptos, no como sustituto de la preparación oficial (AWS Skill Builder, Microsoft Learn, Google Cloud Skills Boost).
-
----
-
-**Hecho con cuidado por Ing. Lewis Reinoso · Material de estudio gratuito.**
+Hecho con cuidado por **Ing. Lewis Reinoso**.

@@ -1,13 +1,17 @@
-# Cert Lab · Ing. Lewis Reinoso — v2.0
+# Cert Lab · Ing. Lewis Reinoso — v2.1
 
-Simulador web de certificaciones cloud (AWS, Azure y Google Cloud) en español, con cronómetro regresivo y banco propio de 450 preguntas originales.
+Simulador web de certificaciones cloud (AWS, Azure y Google Cloud) en español, con cronómetro regresivo y banco propio de 500 preguntas originales.
 
-## ✨ Novedades v2.0
+## ✨ Novedades v2.1
+
+- 🌐 **Nueva certificación AZ-700** — Azure Network Engineer Associate (50 preguntas: ExpressRoute, VPN Gateway, Virtual WAN, hub-spoke, DNS, WAF).
+
+## ✨ v2.0
 
 - 🎨 **Tema claro** — fondo blanco, paleta profesional.
 - ⏱️ **Cronómetro regresivo de 1h 30m** — empieza en `1:30:00` y va bajando hasta `0:00:00`.
 - 🛑 **Auto-finalización** — cuando el cronómetro llega a `0`, el simulacro termina solo y muestra resultados.
-- 📚 **450 preguntas originales** — 50 por cada una de las 9 certificaciones, en español, con explicaciones.
+- 📚 **Banco propio original** — 50 preguntas por certificación, en español, con explicaciones.
 - 🟡 **Avisos visuales** — el cronómetro se pone amarillo al quedar < 10 min y rojo (parpadeo) al quedar < 1 min.
 
 ## 🚀 Despliegue en GitHub Pages
@@ -31,6 +35,7 @@ SimuladorExamenesCloud/
     ├── aws-dva-c02.json        (50 preguntas — Developer Associate)
     ├── azure-az-900.json       (50 preguntas — Azure Fundamentals)
     ├── azure-az-104.json       (50 preguntas — Azure Administrator)
+    ├── azure-az-700.json       (50 preguntas — Azure Network Engineer)
     ├── azure-ai-900.json       (50 preguntas — Azure AI Fundamentals)
     ├── gcp-cdl.json            (50 preguntas — Cloud Digital Leader)
     └── gcp-ace.json            (50 preguntas — Associate Cloud Engineer)
@@ -46,10 +51,11 @@ SimuladorExamenesCloud/
 | AWS       | DVA-C02  | Developer Associate                       | Associate    | 50        |
 | Azure     | AZ-900   | Azure Fundamentals                        | Foundational | 50        |
 | Azure     | AZ-104   | Azure Administrator                       | Associate    | 50        |
+| Azure     | AZ-700   | Azure Network Engineer Associate          | Associate    | 50        |
 | Azure     | AI-900   | Azure AI Fundamentals                     | Foundational | 50        |
 | GCP       | CDL      | Cloud Digital Leader                      | Foundational | 50        |
 | GCP       | ACE      | Associate Cloud Engineer                  | Associate    | 50        |
-| **TOTAL** |          |                                           |              | **450**   |
+| **TOTAL** |          |                                           |              | **500**   |
 
 ## 📝 Formato de banco propio (.json)
 

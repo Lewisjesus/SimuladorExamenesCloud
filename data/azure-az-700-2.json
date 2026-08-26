@@ -1,0 +1,462 @@
+{
+  "title": "Designing and Implementing Microsoft Azure Networking Solutions (AZ-700) — Examen 2",
+  "questions": [
+    {
+      "q": "Tiene un data center local llamado Site1 con un firewall FW1 conectado a Internet. Su suscripción contiene VNet1 (red virtual), VWAN1 (Virtual WAN Standard conectada a Hub1) y Hub1 (Azure Virtual WAN hub con VPN Gateway S2S). Planea conectar Site1 a Hub1 mediante una conexión site-to-site y configurar la conexión hacia FW1. ¿Qué debe crear en VWAN1?",
+      "options": [
+        "Un sitio VPN",
+        "Una conexión de red virtual",
+        "Un dispositivo virtual de red (NVA)",
+        "Una configuración de VPN de usuario"
+      ],
+      "a": [0],
+      "e": "En una Virtual WAN, para conectar un sitio on-premises al hub mediante S2S se crea un 'VPN site' que apunta al dispositivo VPN local (FW1)."
+    },
+    {
+      "q": "Debe configurar una VPN Point-to-Site (P2S) en VPNGW1 de forma que usuarios en Windows 11 puedan conectarse a HubVNet usando sus credenciales de proseware.com (Microsoft Entra). ¿Qué tipo de túnel debe configurar en VPNGW1?",
+      "options": ["IKEv2", "OpenVPN (SSL)", "SSTP (SSL)", "L2TP"],
+      "a": [1],
+      "e": "La autenticación con Microsoft Entra ID en P2S requiere el protocolo OpenVPN (SSL); IKEv2 y SSTP no soportan Microsoft Entra como método de autenticación."
+    },
+    {
+      "q": "Para permitir que los usuarios se autentiquen con sus credenciales de Microsoft Entra (proseware.com) en la VPN P2S, ¿qué debe hacer en el tenant?",
+      "options": [
+        "Configurar una enterprise application (Azure VPN)",
+        "Crear una app registration",
+        "Aprovisionar una identidad administrada asignada por el usuario",
+        "Registrar un dispositivo con Microsoft Intune"
+      ],
+      "a": [0],
+      "e": "Debe habilitar la enterprise application 'Azure VPN' en el tenant para permitir la autenticación de usuarios en la VPN P2S mediante Microsoft Entra."
+    },
+    {
+      "q": "Tiene un Azure Application Gateway (AppGW1) que balancea solicitudes a la web app App1 y debe modificar las variables de servidor en el encabezado de respuesta. ¿Qué debe configurar en AppGW1?",
+      "options": [
+        "Reglas de reescritura (rewrite rules)",
+        "Reglas basadas en rutas (path-based rules)",
+        "Listeners",
+        "Configuración HTTP"
+      ],
+      "a": [0],
+      "e": "Las rewrite rules de Application Gateway permiten modificar encabezados de solicitud/respuesta y variables de servidor."
+    },
+    {
+      "q": "Tiene una red local conectada a VNet1 mediante un circuito ExpressRoute (Circuit1); VNet1 tiene peering con VNet2. Necesita mejorar el rendimiento del enrutamiento entre la red local y ambas redes virtuales minimizando costos. ¿Qué SKU de ExpressRoute debe usar?",
+      "options": [
+        "ExpressRoute FastPath",
+        "ExpressRoute Global Reach",
+        "ExpressRoute Metro",
+        "ExpressRoute Premium"
+      ],
+      "a": [1],
+      "e": "Global Reach permite conectividad optimizada entre sitios on-premises a través del backbone de Microsoft. Para el rendimiento del enrutamiento entre on-prem y VNets emparejadas, en este escenario se selecciona la opción Global Reach como parte de la configuración de mejora."
+    },
+    {
+      "q": "En el mismo escenario de ExpressRoute con VNet1 emparejada con VNet2, ¿qué configuración adicional recomienda hacer sobre las redes virtuales para minimizar costos y mejorar rendimiento?",
+      "options": [
+        "Conectar VNet2 directamente al Circuit1",
+        "Eliminar el peering entre VNet1 y VNet2",
+        "Actualizar el SKU de cada red virtual",
+        "Actualizar las tablas de rutas manualmente"
+      ],
+      "a": [0],
+      "e": "Conectar VNet2 directamente al circuito ExpressRoute mediante su propio gateway o link elimina el salto vía VNet1 y mejora el rendimiento. Es la opción más costo-eficiente para este caso."
+    },
+    {
+      "q": "Tiene un data center DC1 conectado a VNet1 mediante un circuito ExpressRoute Standard (Circuit1) con dos enlaces físicos y una VPN Gateway ErGw3Az. En interrupciones la conexión tarda 3 minutos en fallar y necesita reducir el failover a menos de 1 segundo. ¿Qué debe hacer?",
+      "options": [
+        "Para Circuit1 seleccionar FastPath",
+        "En los routers configurar Bidirectional Forwarding Detection (BFD)",
+        "Cambiar el SKU de GW1 a UltraPerformance",
+        "Configurar modo Active-active en GW1"
+      ],
+      "a": [1],
+      "e": "BFD detecta fallas de enlace en milisegundos, permitiendo un failover sub-segundo entre enlaces redundantes de ExpressRoute."
+    },
+    {
+      "q": "Tiene VPN Gateway vGW1 y 50 usuarios con Windows 11 que necesitan conectarse por P2S usando exclusivamente credenciales de Microsoft Entra. ¿Qué tipo de túnel debe elegir?",
+      "options": ["IKEv2", "IKEv2 y SSTP", "OpenVPN", "SSTP"],
+      "a": [2],
+      "e": "Solo OpenVPN soporta autenticación con Microsoft Entra ID en Azure P2S VPN."
+    },
+    {
+      "q": "En el mismo escenario de P2S con Microsoft Entra ID en Windows 11, ¿qué cliente VPN debe configurar en los dispositivos de los usuarios?",
+      "options": [
+        "Azure VPN Client",
+        "Cliente VPN nativo de Windows",
+        "OpenVPN Client 2.x",
+        "OpenVPN Client 3.x"
+      ],
+      "a": [0],
+      "e": "Azure VPN Client es el único que soporta autenticación con Microsoft Entra ID sobre OpenVPN."
+    },
+    {
+      "q": "Tiene dos VNets emparejadas: Vnet1 (con VPN Gateway y tránsito de gateway habilitado) y Vnet2 (con opción de usar remote gateway). Un cliente P2S conectado a Vnet1 no puede comunicarse con Vnet2. ¿Cuál es la solución correcta?",
+      "options": [
+        "Restablecer la puerta de enlace de Vnet1",
+        "Habilitar BGP en el gateway de Vnet1",
+        "Descargar y reinstalar la configuración del cliente VPN",
+        "Cambiar el SKU del gateway a uno más grande"
+      ],
+      "a": [2],
+      "e": "Al habilitar el tránsito de gateway después de establecer el peering, los clientes P2S ya conectados deben descargar y reinstalar el paquete de configuración VPN para recibir las rutas de la VNet emparejada."
+    },
+    {
+      "q": "Al planificar la implementación de una red virtual de Azure, ¿cuáles TRES tipos de recursos requieren una subred dedicada? (Selecciona todas las que apliquen)",
+      "options": [
+        "Azure Bastion",
+        "Azure AD Domain Services",
+        "Azure Private Link",
+        "Azure Application Gateway v2",
+        "VPN Gateway"
+      ],
+      "a": [0, 3, 4],
+      "e": "Azure Bastion (AzureBastionSubnet), Application Gateway v2 y VPN Gateway (GatewaySubnet) requieren subredes dedicadas con nombres específicos."
+    },
+    {
+      "q": "Tiene una zona DNS privada contoso.com vinculada a Vnet1 y Vnet2 con auto-registro habilitado. Existen VM1 (10.1.10.10), VM2 (10.2.10.10) y VM3 (10.2.10.11) auto-registradas. Agrega manualmente un registro A: vm1 → 10.1.10.9. ¿A qué IP resolverá VM2 la consulta vm1.contoso.com?",
+      "options": ["10.1.10.10", "10.1.10.9", "Ambas (round-robin)", "No se resuelve"],
+      "a": [1],
+      "e": "El registro DNS manual sobrescribe el registro auto-registrado; VM2 resolverá vm1.contoso.com a 10.1.10.9."
+    },
+    {
+      "q": "En el mismo escenario, si se elimina VM1, ¿se eliminan automáticamente todos los registros DNS de VM1?",
+      "options": [
+        "Sí, todos los registros se eliminan",
+        "No, el registro manual permanece",
+        "Solo se elimina si el TTL expira",
+        "Se marcan como huérfanos"
+      ],
+      "a": [1],
+      "e": "Solo se auto-eliminan los registros creados por auto-registro. El registro manual creado por el administrador permanece."
+    },
+    {
+      "q": "Tiene Vnet1 con espacio 192.168.0.0/20 y una Subnet1 (192.168.0.0/24). Crea un rango IPv6 con sufijo CIDR /48 para Vnet1. Debe permitir que las VMs en Subnet1 se comuniquen entre sí por IPv6 minimizando direcciones IPv4 adicionales. ¿Qué sufijo CIDR debe usar para la subred IPv6?",
+      "options": ["/20", "/24", "/48", "/64"],
+      "a": [3],
+      "e": "Las subredes IPv6 en Azure requieren un tamaño /64. Es el único tamaño soportado para subredes IPv6."
+    },
+    {
+      "q": "En el mismo escenario IPv6, para cada VM ¿qué configuración adicional debe crear?",
+      "options": [
+        "Una IP configuration adicional en el NIC existente",
+        "Un NIC adicional",
+        "Una dirección IPv6 pública",
+        "Una tabla de rutas dedicada"
+      ],
+      "a": [0],
+      "e": "Se agrega una IP configuration IPv6 al NIC existente de cada VM. No se requiere NIC adicional."
+    },
+    {
+      "q": "Planea implementar Azure Virtual WAN con un hub que debe soportar 10 sitios S2S y hasta 8 Gbps de tráfico ExpressRoute minimizando costos. ¿Qué tipo de Virtual WAN debe usar?",
+      "options": ["Basic", "Standard", "Premium", "Enterprise"],
+      "a": [1],
+      "e": "Solo Virtual WAN Standard soporta ExpressRoute; Basic solo permite S2S VPN."
+    },
+    {
+      "q": "En el mismo hub Virtual WAN Standard para 10 sitios S2S y 8 Gbps ExpressRoute, ¿cuál es el número mínimo de unidades de escala (scale units) recomendado?",
+      "options": ["2", "4", "6", "8"],
+      "a": [1],
+      "e": "Cada unidad de escala ExpressRoute proporciona 2 Gbps. Para 8 Gbps se requieren 4 unidades de escala."
+    },
+    {
+      "q": "Tiene Vnet1 (10.3.0.0/16) con Subnet1 (10.3.0.0/16 configurada) y WebApp1 (App Service en West US, mismo location que Vnet1). Debe integrar WebApp1 con Vnet1 minimizando costos. ¿Qué tres acciones debe realizar en orden?",
+      "options": [
+        "Modificar espacio de Vnet1 → Deploy VPN Gateway → Configurar P2S VPN",
+        "Add private endpoint → Add subnet → Configure P2S VPN",
+        "Modificar espacio de Vnet1 → Add subnet → Integrar VNet regional (subnet dedicada)",
+        "Create service endpoint → Deploy VPN gateway → Add private endpoint"
+      ],
+      "a": [2],
+      "e": "La integración regional de VNet (Regional VNet Integration) requiere una subnet dedicada delegada al App Service. No requiere VPN Gateway."
+    },
+    {
+      "q": "Está implementando peering entre Hub1 y Spoke1. Hub1 tiene una VPN S2S a on-premises. Debe permitir que una VM en Spoke1 alcance la red on-premises a través de Hub1. En el comando Add-AzVirtualNetworkPeering para Hub1→Spoke1, ¿qué parámetro debe incluir?",
+      "options": [
+        "-AllowForwardedTraffic",
+        "-AllowGatewayTransit",
+        "-UseRemoteGateways",
+        "-BlockVirtualNetworkAccess"
+      ],
+      "a": [1],
+      "e": "En la VNet hub que aloja el gateway, se debe habilitar -AllowGatewayTransit para permitir que las VNets emparejadas usen su gateway."
+    },
+    {
+      "q": "En el mismo escenario Hub-Spoke, ¿qué parámetro debe incluir en el peering Spoke1→Hub1?",
+      "options": [
+        "-AllowForwardedTraffic",
+        "-AllowGatewayTransit",
+        "-UseRemoteGateways",
+        "-BlockVirtualNetworkAccess"
+      ],
+      "a": [2],
+      "e": "En el spoke se habilita -UseRemoteGateways para que la VNet use el gateway del hub emparejado."
+    },
+    {
+      "q": "Tiene 3 sitios on-premises con dispositivos VPN de terceros. VWAN1 tiene Hub1 con dos sitios ya conectados por S2S. Debe conectar el tercer sitio a través de Hub1. ¿Cuáles son las cuatro acciones en orden?",
+      "options": [
+        "Descargar config VPN → Crear VPN site → Configurar dispositivo VPN → Crear conexión",
+        "Crear VPN site → Crear conexión al VPN site → Descargar config VPN → Configurar dispositivo VPN",
+        "Configurar dispositivo VPN → Crear VPN site → Descargar config → Crear conexión",
+        "Crear VPN gateway → Crear VPN site → Configurar dispositivo → Crear conexión"
+      ],
+      "a": [1],
+      "e": "El flujo correcto en Virtual WAN es: crear el VPN site, crear la conexión al VPN site, descargar el archivo de configuración VPN y aplicar la configuración al dispositivo VPN local."
+    },
+    {
+      "q": "Planea una solución con VM, App Service, VPN Gateway y SQL Managed Instance en una sola región. SQL MI debe delegarse en la VNet. Debe minimizar costos de transferencia entre VNets. ¿Cuál es el número MÍNIMO de redes virtuales requeridas?",
+      "options": ["1", "2", "3", "4"],
+      "a": [0],
+      "e": "Todos los recursos pueden coexistir en 1 sola VNet usando distintas subredes; esto minimiza los costos de transferencia entre VNets."
+    },
+    {
+      "q": "En el mismo escenario (VM, App Service, VPN Gateway, SQL MI en una VNet), ¿cuál es el número MÍNIMO de subredes requeridas?",
+      "options": ["1", "2", "3", "4"],
+      "a": [3],
+      "e": "Se requieren 4 subredes: GatewaySubnet (VPN Gateway), subnet delegada para App Service, subnet delegada para SQL MI y una subnet para la VM."
+    },
+    {
+      "q": "Aplica la misma solución anterior a una P2S VPN donde el cliente no puede comunicarse con Vnet2 tras habilitar tránsito de gateway. La solución propuesta es: 'Descargar y reinstalar la configuración del cliente VPN.' ¿Cumple el objetivo?",
+      "options": ["Sí", "No"],
+      "a": [0],
+      "e": "Sí. Reinstalar el paquete VPN aplica las nuevas rutas propagadas tras habilitar el peering con tránsito de gateway."
+    },
+    {
+      "q": "Tiene Vnet1 con Azure Firewall FW1 y 150 VMs. Vnet1 está vinculada a la zona privada contoso.com con auto-registro. Vnet1 se conecta a on-premises por ExpressRoute. Debe permitir que los servidores DNS locales resuelvan nombres en contoso.com. ¿Qué DOS acciones debe realizar?",
+      "options": [
+        "Modificar la configuración de servidores DNS de Vnet1",
+        "En FW1 configurar un servidor DNS personalizado",
+        "En FW1 habilitar el DNS proxy",
+        "En los DNS locales configurar forwarders hacia la IP de frontend de FW1",
+        "En los DNS locales configurar forwarders a 168.63.129.16"
+      ],
+      "a": [2, 3],
+      "e": "Se habilita DNS proxy en Azure Firewall y los servidores on-premises reenvían las consultas de contoso.com a la IP de FW1, que las resuelve mediante la zona privada."
+    },
+    {
+      "q": "Al planear el direccionamiento IP de subredes en Azure, ¿qué recurso REQUIERE direcciones IP dentro de las subredes?",
+      "options": [
+        "Balanceadores de carga internos (ILB)",
+        "Cuenta de almacenamiento",
+        "Azure Virtual Network NAT",
+        "Políticas de service endpoints"
+      ],
+      "a": [0],
+      "e": "Los Internal Load Balancers requieren una IP frontend dentro de una subred de la VNet."
+    },
+    {
+      "q": "Tiene una topología hub-and-spoke con múltiples on-premises conectados a la VNet hub por ExpressRoute y un Application Gateway (GW1) como único ingreso desde Internet. Migra a Azure Virtual WAN manteniendo un solo punto de entrada. ¿Qué TRES cambios debe aplicar?",
+      "options": [
+        "Agregar UDR nuevas",
+        "Agregar peering entre VNets",
+        "Reemplazar las UDR existentes",
+        "Crear conexiones de red virtual",
+        "Eliminar los peerings de VNet existentes",
+        "Reimplementar GW1"
+      ],
+      "a": [2, 3, 4],
+      "e": "Al migrar a Virtual WAN se eliminan los peerings tradicionales, se crean conexiones de red virtual al hub y se reemplazan las UDR para reflejar el nuevo enrutamiento gestionado por Virtual WAN."
+    },
+    {
+      "q": "Tiene una app App1 que escucha en 50 puertos TCP y UDP preconfigurados, instalada en 10 VMs. Debe balancear carga en todas las VMs minimizando el número de reglas. ¿Qué solución elegir?",
+      "options": [
+        "Application Gateway V2 con múltiples listeners",
+        "Standard Load Balancer con Floating IP",
+        "Standard Load Balancer con HA Ports habilitado",
+        "Application Gateway v2 con multi-site hosting"
+      ],
+      "a": [2],
+      "e": "HA Ports en Standard LB permite balancear todos los puertos TCP/UDP con una sola regla, ideal para cargas con muchos puertos."
+    },
+    {
+      "q": "Registra un dominio DNS externo y debe alojar la zona en Azure. ¿Qué TRES acciones debe realizar en orden?",
+      "options": [
+        "Identificar FQDNs de servidores → Modificar SOA → Modificar NS",
+        "Crear zona DNS pública → Identificar FQDNs de servidores → Modificar NS del dominio",
+        "Modificar NS → Crear zona → Identificar IPs",
+        "Modificar SOA → Modificar NS → Crear zona"
+      ],
+      "a": [1],
+      "e": "El flujo correcto es crear la zona DNS pública en Azure, obtener los FQDNs de los name servers asignados por Azure y actualizar los registros NS del dominio en el registrador."
+    },
+    {
+      "q": "Tiene Vnet1 (10.100.0.0/16) con Subnet1 (10.100.1.0/24), Firewall1 (Azure Firewall con IP privada 10.100.253.4) en AzureFirewallSubnet, y Vnet2 (10.101.0.0/16) con Subnet2 emparejada con Vnet1. Una RouteTable1 asociada a Subnet1 tiene: Route1 (10.1.0.0/16 → Virtual network gateway) y Route2 (0.0.0.0/0 → Virtual appliance 10.100.253.4). ¿Los recursos en Subnet1 pueden conectarse a Internet a través de Firewall1?",
+      "options": ["Sí", "No"],
+      "a": [0],
+      "e": "Sí. La UDR de Route2 envía todo el tráfico 0.0.0.0/0 hacia el firewall (10.100.253.4), que sale a Internet."
+    },
+    {
+      "q": "En el mismo escenario, ¿los recursos en Subnet1 pueden conectarse a los recursos de Vnet2?",
+      "options": ["Sí", "No"],
+      "a": [0],
+      "e": "Sí. Vnet1 y Vnet2 están emparejadas, por lo que Subnet1 puede alcanzar Subnet2."
+    },
+    {
+      "q": "En el mismo escenario, ¿los recursos en Subnet2 pueden conectarse a Internet a través de Firewall1?",
+      "options": ["Sí", "No"],
+      "a": [1],
+      "e": "No. El peering entre Vnet1 y Vnet2 no tiene habilitado gateway transit ni forwarded traffic hacia el firewall, por lo que Subnet2 no puede usar Firewall1 para salir a Internet."
+    },
+    {
+      "q": "Tiene VNet1 en East US 2, VNet2 en East US 2 y VNet3 en East US 2, y crea un Azure Firewall AF1 en RG1 en West US. ¿A qué VNets puede desplegar AF1?",
+      "options": [
+        "Solo VNet1 y VNet4",
+        "VNet1, VNet2, VNet3 y VNet4",
+        "Solo una VNet ubicada en West US",
+        "Cualquier VNet en cualquier región",
+        "Solo VNet1 y VNet2"
+      ],
+      "a": [2],
+      "e": "Azure Firewall solo puede desplegarse en VNets ubicadas en la misma región que el propio recurso Firewall (West US en este caso)."
+    },
+    {
+      "q": "Tiene 2 App Services (As1.contoso.com con app1/app2 y As2.contoso.com con app3/app4) y un Application Gateway v2 con IP pública frontend y 2 backend pools. Debe publicar todas las webs y enrutar por Host HTTP header. ¿Cuál es el número MÍNIMO de listeners requerido?",
+      "options": ["1", "2", "3", "4"],
+      "a": [1],
+      "e": "Se necesitan 2 listeners multi-site, uno para cada nombre de host (As1.contoso.com y As2.contoso.com)."
+    },
+    {
+      "q": "En el mismo escenario de Application Gateway v2, ¿cuál es el número MÍNIMO de reglas de enrutamiento?",
+      "options": ["1", "2", "3", "4"],
+      "a": [1],
+      "e": "Se requieren 2 reglas de routing, una por cada listener (una hacia el backend pool con app1/app2 y otra hacia app3/app4)."
+    },
+    {
+      "q": "Tiene una VPN Gateway GW1 con 4 sucursales conectadas por S2S. Los usuarios de Branch1 pueden acceder a Internet pero no a recursos de Azure. Debe restaurar la conectividad minimizando downtime y esfuerzo administrativo. ¿Qué debe hacer primero?",
+      "options": [
+        "Recrear LNG1",
+        "Restablecer RTR1",
+        "Restablecer Connection1",
+        "Restablecer GW1"
+      ],
+      "a": [2],
+      "e": "Restablecer la conexión (Connection1) es la acción menos disruptiva y afecta solo a Branch1, minimizando el impacto en los demás sitios."
+    },
+    {
+      "q": "Tiene Vnet1 y SQL1 (Azure SQL DB con private endpoint en Vnet1). La compañía asociada Fabrikam tiene Vnet2 con VM1. Debe dar acceso a VM1 a SQL1 mediante un Azure Private Link Service. ¿Qué debe implementar en Vnet1?",
+      "options": [
+        "NAT gateway",
+        "Peering link",
+        "Private endpoint",
+        "Standard load balancer",
+        "Application gateway"
+      ],
+      "a": [3],
+      "e": "El Private Link Service requiere un Standard Load Balancer en la VNet del proveedor (Vnet1) para exponer el servicio."
+    },
+    {
+      "q": "En el mismo escenario de Private Link Service, ¿qué debe implementar en Vnet2 para que VM1 acceda al servicio?",
+      "options": [
+        "NAT gateway",
+        "Peering link",
+        "Private endpoint",
+        "Service endpoint",
+        "Application gateway"
+      ],
+      "a": [2],
+      "e": "En la VNet del consumidor se crea un Private Endpoint que apunta al Private Link Service publicado."
+    },
+    {
+      "q": "Tiene Vnet1 con VM1 (Subnet1, IP pública Basic) y VM2 (Subnet2, IP pública Standard). Planea desplegar una Virtual Network NAT Gateway (Gateway1) con estos requisitos: VM1 acceda a Internet por su IP pública, VM2 acceda por su IP pública, minimizar esfuerzo administrativo. ¿Cuál es el MÍNIMO de subnets requeridas en Vnet1?",
+      "options": ["2", "3", "4", "5"],
+      "a": [2],
+      "e": "Se requieren 4 subnets: Subnet1 y Subnet2 originales, GatewaySubnet (para VPN Gateway) y una nueva subnet asociada al NAT Gateway para las VMs que necesiten NAT."
+    },
+    {
+      "q": "Tiene una zona DNS privada fabrikam.com con enlaces a Vnet2 (auto-registro enabled) y Vnet3, y una VM5 en Vnet1 (DNS server 168.63.129.16) que no puede resolver app1.fabrikam.com. ¿Cambiar el DNS de VM5 a 10.4.0.2 permitirá resolver el nombre?",
+      "options": ["Sí", "No"],
+      "a": [1],
+      "e": "No. El problema es que Vnet1 no tiene enlace con la zona DNS privada, por lo que cambiar el DNS a otra IP no resolverá el problema."
+    },
+    {
+      "q": "En el mismo escenario, ¿habilitar un enlace de red virtual para Vnet3 en la zona fabrikam.com permitirá a VM5 (en Vnet1) resolver app1.fabrikam.com?",
+      "options": ["Sí", "No"],
+      "a": [1],
+      "e": "No. VM5 está en Vnet1; se necesita vincular Vnet1 (no Vnet3) a la zona privada fabrikam.com."
+    },
+    {
+      "q": "Tiene 5 oficinas con dispositivos de firewall y una SD-WAN de terceros. Vnet1 tiene Gateway1 (VPN Gateway) y cada oficina se conecta por S2S. Debe reemplazar la SD-WAN por Azure Virtual WAN. ¿Qué debe incluir en la solución?",
+      "options": [
+        "Eliminar Gateway1",
+        "Crear nuevas VPN P2S en los firewalls",
+        "Crear un perfil de Azure Traffic Manager",
+        "Habilitar Active-active en Gateway1"
+      ],
+      "a": [0],
+      "e": "Virtual WAN aloja su propio VPN Gateway en el hub, por lo que Gateway1 debe eliminarse; los sitios se conectarán al hub Virtual WAN."
+    },
+    {
+      "q": "Al planear el direccionamiento IP de subredes en Azure, ¿qué recurso REQUIERE direcciones IP dentro de las subredes?",
+      "options": [
+        "Balanceadores de carga internos (ILB)",
+        "Azure DDoS Protection para VNets",
+        "Políticas de service endpoint",
+        "Service endpoints"
+      ],
+      "a": [0],
+      "e": "Solo los ILB requieren una IP frontend dentro de la subnet; DDoS Protection y service endpoints no consumen IPs de subnet."
+    },
+    {
+      "q": "Tiene una suscripción con VNets hub llamadas VNet1..VNet4 y planea implementar hub-spoke usando VNet peering. Debe configurar VNet1 como hub con enrutamiento transitivo entre spokes y máximo rendimiento. ¿Qué debe incluir?",
+      "options": [
+        "Azure VPN Gateway",
+        "Azure Route Server",
+        "Azure Private Link",
+        "Azure Firewall"
+      ],
+      "a": [3],
+      "e": "Azure Firewall en el hub proporciona enrutamiento transitivo entre spokes con máximo rendimiento y sin la latencia de un VPN Gateway."
+    },
+    {
+      "q": "Tiene RG1 (East US), RG2 (East US), RG3 (UK West), VNet1 (10.1.0.0/16 en East US-RG1), VNet2 (10.2.0.0/16 en West US-RG2), VNet3 (10.1.0.0/16 en UK West-RG3). ¿Puede moverse VNet1 al grupo RG3?",
+      "options": ["Sí", "No"],
+      "a": [0],
+      "e": "Sí. Los recursos pueden moverse entre resource groups sin importar la región; la restricción es que no puedan haber conflictos de recursos."
+    },
+    {
+      "q": "En el mismo escenario, ¿se puede crear una nueva VNet llamada Vnet2 (segundo nombre) en RG2 en la región East US?",
+      "options": ["Sí", "No"],
+      "a": [1],
+      "e": "No. Ya existe una VNet2 en RG2; los nombres de recurso deben ser únicos dentro de un mismo resource group."
+    },
+    {
+      "q": "Debe asegurar que todos los hosts en Subnet3-2 salgan a Internet por la MISMA IP pública estática, minimizando esfuerzo al agregar nuevos hosts. ¿Qué servicio debe usar?",
+      "options": [
+        "NAT Gateway con IP pública estática asociada a la subnet",
+        "Standard Load Balancer con outbound rules por VM",
+        "Azure Firewall con SNAT dinámico",
+        "IP pública asignada a cada VM"
+      ],
+      "a": [0],
+      "e": "NAT Gateway con una IP pública estática asociada a la subnet garantiza que todas las VMs (incluidas las nuevas) usen la misma IP saliente sin configuración adicional."
+    },
+    {
+      "q": "Debe asegurar que Subnet 4-3 pueda soportar 507 hosts. ¿Qué prefijo CIDR debe usar como mínimo?",
+      "options": ["/21", "/22", "/23", "/24"],
+      "a": [2],
+      "e": "Una subred /23 provee 512 direcciones totales; en Azure se reservan 5, quedando 507 hosts utilizables — exactamente lo requerido."
+    },
+    {
+      "q": "Planea desplegar 100 VMs en Subnet-1 (sin IP pública) que harán 10.000+ llamadas por minuto a una API externa. Debe minimizar el riesgo de agotamiento de puertos SNAT con el mínimo esfuerzo administrativo. ¿Qué solución elegir?",
+      "options": [
+        "NAT Gateway asociado a la subnet",
+        "Standard LB con outbound rules manuales por VM",
+        "IPs públicas Basic en cada VM",
+        "Azure Firewall con reglas DNAT"
+      ],
+      "a": [0],
+      "e": "NAT Gateway proporciona miles de puertos SNAT por IP asociada y escala automáticamente, eliminando el agotamiento SNAT sin configuración por VM."
+    },
+    {
+      "q": "Planea desplegar un appliance de inspección en subnet3-2 (IP 10.3.2.100). Debe asegurar que TODO el tráfico a Internet desde subnet3-1 pase por el appliance para inspección. ¿Qué debe configurar?",
+      "options": [
+        "Una UDR en subnet3-1 con 0.0.0.0/0 → next hop Virtual appliance 10.3.2.100",
+        "Un NSG en subnet3-1 bloqueando Internet",
+        "Un Service Endpoint en subnet3-1",
+        "Un peering entre subnet3-1 y subnet3-2"
+      ],
+      "a": [0],
+      "e": "Una User-Defined Route en subnet3-1 con destino 0.0.0.0/0 y next-hop tipo Virtual Appliance apuntando a 10.3.2.100 fuerza el tráfico hacia el appliance para inspección."
+    }
+  ]
+}

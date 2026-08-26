@@ -707,6 +707,31 @@ main section.view-active { display: block; }
   letter-spacing: -0.2px;
 }
 
+.translate-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 10px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  border-radius: 999px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-soft);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  vertical-align: middle;
+}
+.translate-btn:hover {
+  border-color: var(--accent-2);
+  color: var(--accent-2);
+  background: rgba(99,102,241,0.06);
+}
+.translate-btn:disabled { opacity: 0.6; cursor: wait; }
+.translate-icon { font-size: 13px; }
+
 .options { display: flex; flex-direction: column; gap: 10px; }
 .option {
   display: flex;
@@ -1228,6 +1253,7 @@ const CERTIFICATIONS = [
   { id: 'az-900', provider: 'azure', code: 'AZ-900', name: 'Microsoft Azure Fundamentals', desc: 'Conceptos de nube, servicios principales y gobernanza en Azure.', level: 'foundational', file: 'data/azure-az-900.json' },
   { id: 'az-104', provider: 'azure', code: 'AZ-104', name: 'Azure Administrator Associate', desc: 'Identidades, redes, cómputo y monitoreo en Azure.', level: 'associate', file: 'data/azure-az-104.json' },
   { id: 'az-700', provider: 'azure', code: 'AZ-700', name: 'Azure Network Engineer Associate', desc: 'ExpressRoute, VPN Gateway, Virtual WAN, hub-spoke, DNS y seguridad de red en Azure.', level: 'associate', file: 'data/azure-az-700.json' },
+  { id: 'az-700-2', provider: 'azure', code: 'AZ-700 · Ex.2', name: 'Azure Network Engineer Associate — Examen 2', desc: 'Segundo banco AZ-700: P2S con Entra ID, Virtual WAN, Application Gateway, NAT Gateway, Private Link, DNS privado y hub-spoke.', level: 'associate', file: 'data/azure-az-700-2.json' },
   { id: 'ai-900', provider: 'azure', code: 'AI-900', name: 'Azure AI Fundamentals', desc: 'Workloads de IA, visión, NLP e IA generativa en Azure.', level: 'foundational', file: 'data/azure-ai-900.json' },
   // GCP
   { id: 'gcp-cdl', provider: 'gcp', code: 'CDL', name: 'Cloud Digital Leader', desc: 'Transformación digital con Google Cloud, casos de negocio.', level: 'foundational', file: 'data/gcp-cdl.json' },
@@ -1395,6 +1421,8 @@ function startQuiz() {
   state.answers = Array(state.filtered.length).fill(null);
   state.checked = Array(state.filtered.length).fill(false);
   state.startTime = Date.now();
+  // Reset cache de traducción para el nuevo quiz
+  for (const k in translationCache) delete translationCache[k];
 
   document.getElementById('quiz-cert-code').textContent = state.currentCert ? state.currentCert.code : 'CUSTOM';
   document.getElementById('quiz-mode-label').textContent = state.mode === 'study' ? 'MODO ESTUDIO' : 'MODO SIMULACRO';
@@ -1456,6 +1484,81 @@ function updateTimerDisplay() {
   }
 }
 
+// ===== TRADUCCIÓN =====
+// Cache: key = idx del examen, value = { es: {...}, en: {...}, lang: 'es'|'en' }
+const translationCache = {};
+
+async function translateText(text, targetLang) {
+  // Usa el endpoint público de Google Translate (sin API key)
+  const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=${targetLang}&dt=t&q=${encodeURIComponent(text)}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Fallo de traducción');
+  const data = await res.json();
+  // data[0] es un array de chunks [ [traducido, original, ...], ... ]
+  return data[0].map(chunk => chunk[0]).join('');
+}
+
+async function toggleTranslate(idx) {
+  const q = state.filtered[idx];
+  if (!q) return;
+  const btn = document.querySelector('.translate-btn');
+  const label = document.getElementById(`translate-label-${idx}`);
+  const questionEl = document.getElementById(`question-text-${idx}`);
+  const optionsEl = document.getElementById(`options-${idx}`);
+  if (!btn || !questionEl || !optionsEl) return;
+
+  // Inicializa cache
+  if (!translationCache[idx]) {
+    translationCache[idx] = { es: { q: q.q, options: q.options.slice() }, en: null, lang: 'es' };
+  }
+  const cache = translationCache[idx];
+  const targetLang = cache.lang === 'es' ? 'en' : 'es';
+
+  // Si ya está traducido, solo alterna
+  if (cache[targetLang]) {
+    applyTranslation(idx, targetLang);
+    return;
+  }
+
+  // Traducir por primera vez
+  btn.disabled = true;
+  label.textContent = 'Traduciendo…';
+  try {
+    const [qTr, ...optsTr] = await Promise.all([
+      translateText(q.q, targetLang),
+      ...q.options.map(o => translateText(o, targetLang))
+    ]);
+    cache[targetLang] = { q: qTr, options: optsTr };
+    applyTranslation(idx, targetLang);
+  } catch (err) {
+    console.error(err);
+    label.textContent = 'Error';
+    showToast('No se pudo traducir. Reintenta.');
+    setTimeout(() => { if (label) label.textContent = `Traducir a ${targetLang.toUpperCase()}`; }, 1500);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function applyTranslation(idx, targetLang) {
+  const cache = translationCache[idx];
+  if (!cache || !cache[targetLang]) return;
+  cache.lang = targetLang;
+  const questionEl = document.getElementById(`question-text-${idx}`);
+  const label = document.getElementById(`translate-label-${idx}`);
+  const data = cache[targetLang];
+
+  if (questionEl) questionEl.textContent = data.q;
+
+  // Actualiza el texto de las opciones sin re-renderizar (mantiene estado)
+  const optionButtons = document.querySelectorAll(`#options-${idx} .option .option-text`);
+  optionButtons.forEach((el, i) => {
+    if (data.options[i] !== undefined) el.textContent = data.options[i];
+  });
+
+  if (label) label.textContent = targetLang === 'en' ? 'Ver en ES' : 'Traducir a EN';
+}
+
 function renderQuestion() {
   const q = state.filtered[state.current];
   if (!q) return;
@@ -1473,8 +1576,12 @@ function renderQuestion() {
     <div class="question-card">
       <div class="question-num">PREGUNTA ${state.current + 1} DE ${state.filtered.length}</div>
       <span class="question-type">${isMulti ? 'Múltiple respuesta' : 'Opción única'}</span>
-      <div class="question-text">${escapeHtml(q.q)}</div>
-      <div class="options">
+      <button class="translate-btn" onclick="toggleTranslate(${state.current})" title="Traducir esta pregunta">
+        <span class="translate-icon">🌐</span>
+        <span class="translate-label" id="translate-label-${state.current}">Traducir a EN</span>
+      </button>
+      <div class="question-text" id="question-text-${state.current}">${escapeHtml(q.q)}</div>
+      <div class="options" id="options-${state.current}">
         ${q.options.map((opt, i) => {
           const letter = String.fromCharCode(65 + i);
           const isSel = selected.includes(i);
@@ -1507,6 +1614,12 @@ function renderQuestion() {
   document.getElementById('btn-next').disabled = state.current === state.filtered.length - 1;
   document.getElementById('btn-check').style.display =
     (state.mode === 'study' && !checked) ? 'inline-block' : 'none';
+
+  // Re-aplica traducción cacheada si el usuario ya la había pedido para esta pregunta
+  const cache = translationCache[state.current];
+  if (cache && cache.lang === 'en' && cache.en) {
+    applyTranslation(state.current, 'en');
+  }
 }
 
 function selectOption(i, isMulti) {

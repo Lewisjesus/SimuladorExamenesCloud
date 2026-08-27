@@ -1001,6 +1001,107 @@ main section.view-active { display: block; }
 }
 .app-footer strong { color: var(--text-muted); font-weight: 600; }
 
+/* ============ YES/NO TABLE ============ */
+.yesno-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+.yesno-header {
+  display: grid;
+  grid-template-columns: 1fr 70px 70px;
+  gap: 0;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 16px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.yesno-opt-header { text-align: center; }
+.yesno-row {
+  display: grid;
+  grid-template-columns: 1fr 70px 70px;
+  gap: 0;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+}
+.yesno-row:last-child { border-bottom: none; }
+.yesno-stmt {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text);
+  padding-right: 12px;
+}
+.yesno-btn {
+  width: 44px;
+  height: 34px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.12s ease;
+  margin: 0 auto;
+  display: grid;
+  place-items: center;
+}
+.yesno-btn:hover:not(:disabled) { border-color: var(--border-strong); background: var(--bg-2); }
+.yesno-btn.selected { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); font-weight: 700; }
+.yesno-btn.correct { border-color: var(--success); background: #ECFDF5; color: var(--success); font-weight: 700; }
+.yesno-btn.wrong { border-color: var(--error); background: #FEF2F2; color: var(--error); font-weight: 700; }
+.yesno-btn:disabled { cursor: default; }
+
+/* ============ DROPDOWN FIELDS ============ */
+.dropdown-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.dropdown-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.dropdown-label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.8px;
+}
+.dropdown-input {
+  padding: 12px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  font-family: var(--font-body);
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s ease;
+  width: 100%;
+}
+.dropdown-input:focus { border-color: var(--accent); }
+.dropdown-input.correct { border-color: var(--success); background: #ECFDF5; }
+.dropdown-input.wrong { border-color: var(--error); background: #FEF2F2; }
+.dropdown-input:disabled { cursor: default; opacity: 0.8; }
+.dropdown-correct {
+  font-size: 13px;
+  color: var(--success);
+  font-weight: 600;
+  font-family: var(--font-mono);
+}
+
 /* ============ TOAST ============ */
 .toast {
   position: fixed;
@@ -1252,8 +1353,7 @@ const CERTIFICATIONS = [
   // Azure
   { id: 'az-900', provider: 'azure', code: 'AZ-900', name: 'Microsoft Azure Fundamentals', desc: 'Conceptos de nube, servicios principales y gobernanza en Azure.', level: 'foundational', file: 'data/azure-az-900.json' },
   { id: 'az-104', provider: 'azure', code: 'AZ-104', name: 'Azure Administrator Associate', desc: 'Identidades, redes, cómputo y monitoreo en Azure.', level: 'associate', file: 'data/azure-az-104.json' },
-  { id: 'az-700', provider: 'azure', code: 'AZ-700', name: 'Azure Network Engineer Associate', desc: 'ExpressRoute, VPN Gateway, Virtual WAN, hub-spoke, DNS y seguridad de red en Azure.', level: 'associate', file: 'data/azure-az-700.json' },
-  { id: 'az-700-2', provider: 'azure', code: 'AZ-700 · Ex.2', name: 'Azure Network Engineer Associate — Examen 2', desc: 'Segundo banco AZ-700: P2S con Entra ID, Virtual WAN, Application Gateway, NAT Gateway, Private Link, DNS privado y hub-spoke.', level: 'associate', file: 'data/azure-az-700-2.json' },
+  { id: 'az-700', provider: 'azure', code: 'AZ-700', name: 'Azure Network Engineer Associate', desc: 'Banco oficial de preguntas AZ-700. Cada simulacro genera 50 preguntas aleatorias del banco completo (ExpressRoute, VPN, Virtual WAN, DNS, NSG, Load Balancer, etc.).', level: 'associate', file: 'data/azure-az-700-bank.json', randomMode: true, questionsPerExam: 50 },
   { id: 'ai-900', provider: 'azure', code: 'AI-900', name: 'Azure AI Fundamentals', desc: 'Workloads de IA, visión, NLP e IA generativa en Azure.', level: 'foundational', file: 'data/azure-ai-900.json' },
   // GCP
   { id: 'gcp-cdl', provider: 'gcp', code: 'CDL', name: 'Cloud Digital Leader', desc: 'Transformación digital con Google Cloud, casos de negocio.', level: 'foundational', file: 'data/gcp-cdl.json' },
@@ -1340,6 +1440,9 @@ function renderHome() {
     const grid = document.getElementById(p + '-grid');
     grid.innerHTML = providers[p].map(cert => {
       const count = (BANKS[cert.id] || []).length;
+      const countLabel = cert.randomMode
+        ? `${cert.questionsPerExam || 50} aleatorias de ${count}`
+        : `${count} preguntas`;
       return `
         <button class="cert-card ${p}" onclick="openConfig('${cert.id}')">
           <div class="cert-top">
@@ -1349,7 +1452,7 @@ function renderHome() {
           <div class="cert-name">${escapeHtml(cert.name)}</div>
           <div class="cert-desc">${escapeHtml(cert.desc)}</div>
           <div class="cert-footer">
-            <div class="cert-questions">${count} preguntas</div>
+            <div class="cert-questions">${countLabel}</div>
             <div class="cert-arrow">→</div>
           </div>
         </button>
@@ -1368,21 +1471,79 @@ function openConfig(certId) {
     return;
   }
   state.currentCert = cert;
-  state.questions = bank;
   state.customBank = null;
+
+  // Si el examen tiene modo aleatorio, barajar y tomar N preguntas
+  if (cert.randomMode) {
+    const n = cert.questionsPerExam || 50;
+    state.questions = shuffleArray([...bank]).slice(0, Math.min(n, bank.length));
+    state.isRandomMode = true;
+  } else {
+    state.questions = bank;
+    state.isRandomMode = false;
+  }
 
   document.getElementById('cfg-code').textContent = cert.code;
   document.getElementById('cfg-title').textContent = cert.name;
-  document.getElementById('cfg-meta').textContent = `${cert.provider.toUpperCase()} · ${cert.level} · ${bank.length} preguntas en el banco`;
+
+  if (cert.randomMode) {
+    document.getElementById('cfg-meta').textContent = `${cert.provider.toUpperCase()} · ${cert.level} · ${state.questions.length} preguntas aleatorias de ${bank.length} en banco`;
+  } else {
+    document.getElementById('cfg-meta').textContent = `${cert.provider.toUpperCase()} · ${cert.level} · ${bank.length} preguntas en el banco`;
+  }
 
   document.getElementById('range-from').value = 1;
-  document.getElementById('range-from').max = bank.length;
-  document.getElementById('range-to').value = bank.length;
-  document.getElementById('range-to').max = bank.length;
+  document.getElementById('range-from').max = state.questions.length;
+  document.getElementById('range-to').value = state.questions.length;
+  document.getElementById('range-to').max = state.questions.length;
 
   updateRangeCount();
   selectMode('study');
   navigate('config');
+
+  // Mostrar u ocultar el botón de aleatorizar
+  renderRandomizeBtn(cert, bank);
+}
+
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function randomizeQuestions() {
+  const cert = state.currentCert;
+  if (!cert || !cert.randomMode) return;
+  const bank = BANKS[cert.id] || [];
+  const n = cert.questionsPerExam || 50;
+  state.questions = shuffleArray([...bank]).slice(0, Math.min(n, bank.length));
+  document.getElementById('range-from').value = 1;
+  document.getElementById('range-to').value = state.questions.length;
+  document.getElementById('range-from').max = state.questions.length;
+  document.getElementById('range-to').max = state.questions.length;
+  updateRangeCount();
+  document.getElementById('cfg-meta').textContent = `${cert.provider.toUpperCase()} · ${cert.level} · ${state.questions.length} preguntas aleatorias de ${bank.length} en banco`;
+  showToast('🎲 Nuevo set de 50 preguntas aleatorias generado');
+}
+
+function renderRandomizeBtn(cert, bank) {
+  // Eliminar botón previo si existe
+  const existing = document.getElementById('randomize-btn');
+  if (existing) existing.remove();
+
+  if (cert.randomMode && bank.length > (cert.questionsPerExam || 50)) {
+    const btn = document.createElement('button');
+    btn.id = 'randomize-btn';
+    btn.className = 'btn btn-accent';
+    btn.style.cssText = 'margin-bottom: 12px; width: 100%;';
+    btn.innerHTML = '🎲 Generar otro set de 50 preguntas aleatorias';
+    btn.onclick = randomizeQuestions;
+    // Insertar antes del botón start
+    const startBtn = document.querySelector('.start-btn');
+    startBtn.parentNode.insertBefore(btn, startBtn);
+  }
 }
 
 function selectMode(mode) {
@@ -1501,15 +1662,18 @@ async function translateText(text, targetLang) {
 async function toggleTranslate(idx) {
   const q = state.filtered[idx];
   if (!q) return;
+  const qType = q.type || 'standard';
   const btn = document.querySelector('.translate-btn');
   const label = document.getElementById(`translate-label-${idx}`);
   const questionEl = document.getElementById(`question-text-${idx}`);
-  const optionsEl = document.getElementById(`options-${idx}`);
-  if (!btn || !questionEl || !optionsEl) return;
+  if (!btn || !questionEl) return;
 
   // Inicializa cache
   if (!translationCache[idx]) {
-    translationCache[idx] = { es: { q: q.q, options: q.options.slice() }, en: null, lang: 'es' };
+    const opts = qType === 'standard' ? q.options.slice() : 
+                 qType === 'yesno' ? q.statements.slice() :
+                 q.fields.slice();
+    translationCache[idx] = { es: { q: q.q, options: opts }, en: null, lang: 'es' };
   }
   const cache = translationCache[idx];
   const targetLang = cache.lang === 'es' ? 'en' : 'es';
@@ -1524,9 +1688,12 @@ async function toggleTranslate(idx) {
   btn.disabled = true;
   label.textContent = 'Traduciendo…';
   try {
+    const textsToTranslate = qType === 'standard' ? q.options :
+                              qType === 'yesno' ? q.statements :
+                              q.fields;
     const [qTr, ...optsTr] = await Promise.all([
       translateText(q.q, targetLang),
-      ...q.options.map(o => translateText(o, targetLang))
+      ...textsToTranslate.map(o => translateText(o, targetLang))
     ]);
     cache[targetLang] = { q: qTr, options: optsTr };
     applyTranslation(idx, targetLang);
@@ -1550,11 +1717,26 @@ function applyTranslation(idx, targetLang) {
 
   if (questionEl) questionEl.textContent = data.q;
 
-  // Actualiza el texto de las opciones sin re-renderizar (mantiene estado)
-  const optionButtons = document.querySelectorAll(`#options-${idx} .option .option-text`);
-  optionButtons.forEach((el, i) => {
-    if (data.options[i] !== undefined) el.textContent = data.options[i];
-  });
+  // Actualiza el texto de las opciones/statements/labels según el tipo
+  const q = state.filtered[idx];
+  const qType = q ? (q.type || 'standard') : 'standard';
+
+  if (qType === 'standard') {
+    const optionButtons = document.querySelectorAll(`#options-${idx} .option .option-text`);
+    optionButtons.forEach((el, i) => {
+      if (data.options[i] !== undefined) el.textContent = data.options[i];
+    });
+  } else if (qType === 'yesno') {
+    const stmts = document.querySelectorAll(`#options-${idx} .yesno-stmt`);
+    stmts.forEach((el, i) => {
+      if (data.options[i] !== undefined) el.textContent = data.options[i];
+    });
+  } else if (qType === 'dropdown') {
+    const labels = document.querySelectorAll(`#options-${idx} .dropdown-label`);
+    labels.forEach((el, i) => {
+      if (data.options[i] !== undefined) el.textContent = data.options[i] + ':';
+    });
+  }
 
   if (label) label.textContent = targetLang === 'en' ? 'Ver en ES' : 'Traducir a EN';
 }
@@ -1562,16 +1744,39 @@ function applyTranslation(idx, targetLang) {
 function renderQuestion() {
   const q = state.filtered[state.current];
   if (!q) return;
-  const isMulti = q.a.length > 1;
-  const selected = state.answers[state.current] || [];
+  const qType = q.type || 'standard';
   const checked = state.checked[state.current];
-  // Mostrar feedback (verde/rojo + explicación) SOLO en modo estudio después de Comprobar
   const showFeedback = state.mode === 'study' && checked;
 
   document.getElementById('progress-fill').style.width =
     ((state.current + 1) / state.filtered.length * 100) + '%';
 
   const container = document.getElementById('question-container');
+
+  if (qType === 'yesno') {
+    renderYesNoQuestion(container, q, showFeedback);
+  } else if (qType === 'dropdown') {
+    renderDropdownQuestion(container, q, showFeedback);
+  } else {
+    renderStandardQuestion(container, q, showFeedback);
+  }
+
+  document.getElementById('btn-prev').disabled = state.current === 0;
+  document.getElementById('btn-next').disabled = state.current === state.filtered.length - 1;
+  document.getElementById('btn-check').style.display =
+    (state.mode === 'study' && !checked) ? 'inline-block' : 'none';
+
+  // Re-aplica traducción cacheada
+  const cache = translationCache[state.current];
+  if (cache && cache.lang === 'en' && cache.en) {
+    applyTranslation(state.current, 'en');
+  }
+}
+
+function renderStandardQuestion(container, q, showFeedback) {
+  const isMulti = q.a.length > 1;
+  const selected = state.answers[state.current] || [];
+
   container.innerHTML = `
     <div class="question-card">
       <div class="question-num">PREGUNTA ${state.current + 1} DE ${state.filtered.length}</div>
@@ -1609,17 +1814,124 @@ function renderQuestion() {
       ` : ''}
     </div>
   `;
+}
 
-  document.getElementById('btn-prev').disabled = state.current === 0;
-  document.getElementById('btn-next').disabled = state.current === state.filtered.length - 1;
-  document.getElementById('btn-check').style.display =
-    (state.mode === 'study' && !checked) ? 'inline-block' : 'none';
+function renderYesNoQuestion(container, q, showFeedback) {
+  const answers = state.answers[state.current] || [];
+  // answers es un array de booleans: [true, false, null, ...]
 
-  // Re-aplica traducción cacheada si el usuario ya la había pedido para esta pregunta
-  const cache = translationCache[state.current];
-  if (cache && cache.lang === 'en' && cache.en) {
-    applyTranslation(state.current, 'en');
-  }
+  container.innerHTML = `
+    <div class="question-card">
+      <div class="question-num">PREGUNTA ${state.current + 1} DE ${state.filtered.length}</div>
+      <span class="question-type" style="background:#FEF3C7;color:#92400E;">Tabla Sí / No</span>
+      <button class="translate-btn" onclick="toggleTranslate(${state.current})" title="Traducir esta pregunta">
+        <span class="translate-icon">🌐</span>
+        <span class="translate-label" id="translate-label-${state.current}">Traducir a EN</span>
+      </button>
+      <div class="question-text" id="question-text-${state.current}">${escapeHtml(q.q)}</div>
+      <div class="yesno-table" id="options-${state.current}">
+        <div class="yesno-header">
+          <div class="yesno-stmt-header">Declaración</div>
+          <div class="yesno-opt-header">Sí</div>
+          <div class="yesno-opt-header">No</div>
+        </div>
+        ${q.statements.map((stmt, i) => {
+          const userAnswer = answers[i];
+          const correctAnswer = q.answers[i];
+          let yesClass = 'yesno-btn';
+          let noClass = 'yesno-btn';
+          if (showFeedback) {
+            if (correctAnswer === true) yesClass += ' correct';
+            else noClass += ' correct';
+            if (userAnswer === true && correctAnswer !== true) yesClass += ' wrong';
+            if (userAnswer === false && correctAnswer !== false) noClass += ' wrong';
+          } else {
+            if (userAnswer === true) yesClass += ' selected';
+            if (userAnswer === false) noClass += ' selected';
+          }
+          return `
+            <div class="yesno-row">
+              <div class="yesno-stmt">${escapeHtml(stmt)}</div>
+              <button class="${yesClass}" ${showFeedback ? 'disabled' : ''} onclick="selectYesNo(${i}, true)">Sí</button>
+              <button class="${noClass}" ${showFeedback ? 'disabled' : ''} onclick="selectYesNo(${i}, false)">No</button>
+            </div>
+          `;
+        }).join('')}
+      </div>
+      ${showFeedback ? `
+        <div class="explanation">
+          <strong>Explicación</strong>
+          ${escapeHtml(q.e || 'Sin explicación.')}
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+function renderDropdownQuestion(container, q, showFeedback) {
+  const answers = state.answers[state.current] || [];
+  // answers es un array de strings (valores seleccionados por el usuario)
+
+  container.innerHTML = `
+    <div class="question-card">
+      <div class="question-num">PREGUNTA ${state.current + 1} DE ${state.filtered.length}</div>
+      <span class="question-type" style="background:#EDE9FE;color:#5B21B6;">Configuración</span>
+      <button class="translate-btn" onclick="toggleTranslate(${state.current})" title="Traducir esta pregunta">
+        <span class="translate-icon">🌐</span>
+        <span class="translate-label" id="translate-label-${state.current}">Traducir a EN</span>
+      </button>
+      <div class="question-text" id="question-text-${state.current}">${escapeHtml(q.q)}</div>
+      <div class="dropdown-fields" id="options-${state.current}">
+        ${q.fields.map((field, i) => {
+          const userAnswer = answers[i] || '';
+          const correctAnswer = q.correctAnswers[i];
+          let inputClass = 'dropdown-input';
+          if (showFeedback) {
+            if (userAnswer.trim().toLowerCase() === correctAnswer.trim().toLowerCase()) {
+              inputClass += ' correct';
+            } else {
+              inputClass += ' wrong';
+            }
+          }
+          return `
+            <div class="dropdown-row">
+              <label class="dropdown-label">${escapeHtml(field)}:</label>
+              <input type="text" class="${inputClass}" 
+                     value="${escapeHtml(userAnswer)}" 
+                     placeholder="Escriba su respuesta..."
+                     ${showFeedback ? 'disabled' : ''}
+                     onchange="selectDropdown(${i}, this.value)"
+                     oninput="selectDropdown(${i}, this.value)">
+              ${showFeedback ? `<div class="dropdown-correct">✓ ${escapeHtml(correctAnswer)}</div>` : ''}
+            </div>
+          `;
+        }).join('')}
+      </div>
+      ${showFeedback ? `
+        <div class="explanation">
+          <strong>Explicación</strong>
+          ${escapeHtml(q.e || 'Sin explicación.')}
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+function selectYesNo(stmtIndex, value) {
+  if (state.mode === 'study' && state.checked[state.current]) return;
+  const q = state.filtered[state.current];
+  let answers = state.answers[state.current] || Array(q.statements.length).fill(null);
+  answers[stmtIndex] = value;
+  state.answers[state.current] = answers;
+  renderQuestion();
+}
+
+function selectDropdown(fieldIndex, value) {
+  if (state.mode === 'study' && state.checked[state.current]) return;
+  const q = state.filtered[state.current];
+  let answers = state.answers[state.current] || Array(q.fields.length).fill('');
+  answers[fieldIndex] = value;
+  state.answers[state.current] = answers;
 }
 
 function selectOption(i, isMulti) {
@@ -1639,9 +1951,25 @@ function selectOption(i, isMulti) {
 }
 
 function checkAnswer() {
-  if (!state.answers[state.current] || state.answers[state.current].length === 0) {
-    showToast('Selecciona al menos una opción primero.');
-    return;
+  const q = state.filtered[state.current];
+  const qType = q.type || 'standard';
+  const ans = state.answers[state.current];
+
+  if (qType === 'standard') {
+    if (!ans || ans.length === 0) {
+      showToast('Selecciona al menos una opción primero.');
+      return;
+    }
+  } else if (qType === 'yesno') {
+    if (!ans || ans.some(a => a === null || a === undefined)) {
+      showToast('Responde Sí o No para cada declaración.');
+      return;
+    }
+  } else if (qType === 'dropdown') {
+    if (!ans || ans.some(a => !a || a.trim() === '')) {
+      showToast('Completa todos los campos antes de comprobar.');
+      return;
+    }
   }
   state.checked[state.current] = true;
   renderQuestion();
@@ -1678,8 +2006,22 @@ function finishQuiz(auto) {
 function showResults() {
   let correct = 0;
   state.filtered.forEach((q, i) => {
-    const ans = state.answers[i] || [];
-    const isCorrect = ans.length === q.a.length && ans.every(x => q.a.includes(x));
+    const ans = state.answers[i];
+    const qType = q.type || 'standard';
+    let isCorrect = false;
+
+    if (qType === 'standard') {
+      const a = ans || [];
+      isCorrect = a.length === q.a.length && a.every(x => q.a.includes(x));
+    } else if (qType === 'yesno') {
+      const a = ans || [];
+      isCorrect = q.answers.length > 0 && q.answers.every((correct, idx) => a[idx] === correct);
+    } else if (qType === 'dropdown') {
+      const a = ans || [];
+      isCorrect = q.correctAnswers.every((correct, idx) => 
+        (a[idx] || '').trim().toLowerCase() === correct.trim().toLowerCase()
+      );
+    }
     if (isCorrect) correct++;
   });
   const total = state.filtered.length;
@@ -1710,10 +2052,24 @@ function reviewWrong() { renderReview(true); }
 function renderReview(onlyWrong) {
   const container = document.getElementById('review-container');
   const items = state.filtered.map((q, i) => {
-    const ans = state.answers[i] || [];
-    const isCorrect = ans.length === q.a.length && ans.every(x => q.a.includes(x));
+    const ans = state.answers[i];
+    const qType = q.type || 'standard';
+    let isCorrect = false;
+
+    if (qType === 'standard') {
+      const a = ans || [];
+      isCorrect = a.length === q.a.length && a.every(x => q.a.includes(x));
+    } else if (qType === 'yesno') {
+      const a = ans || [];
+      isCorrect = q.answers.length > 0 && q.answers.every((correct, idx) => a[idx] === correct);
+    } else if (qType === 'dropdown') {
+      const a = ans || [];
+      isCorrect = q.correctAnswers.every((correct, idx) =>
+        (a[idx] || '').trim().toLowerCase() === correct.trim().toLowerCase()
+      );
+    }
     if (onlyWrong && isCorrect) return null;
-    return { q, i, ans, isCorrect };
+    return { q, i, ans, isCorrect, qType };
   }).filter(Boolean);
 
   if (items.length === 0) {
@@ -1723,32 +2079,65 @@ function renderReview(onlyWrong) {
 
   container.innerHTML = `
     <div class="review-list">
-      ${items.map(({ q, i, ans, isCorrect }) => `
+      ${items.map(({ q, i, ans, isCorrect, qType }) => {
+        let optionsHtml = '';
+        if (qType === 'standard') {
+          const a = ans || [];
+          optionsHtml = q.options.map((opt, j) => {
+            const letter = String.fromCharCode(65 + j);
+            const isAns = q.a.includes(j);
+            const isPicked = a.includes(j);
+            let cls = 'review-opt';
+            if (isAns) cls += ' correct';
+            else if (isPicked) cls += ' wrong';
+            return `
+              <div class="${cls}">
+                <span class="review-opt-letter">${letter}</span>
+                <span>${escapeHtml(opt)}</span>
+              </div>
+            `;
+          }).join('');
+        } else if (qType === 'yesno') {
+          const a = ans || [];
+          optionsHtml = q.statements.map((stmt, j) => {
+            const correctVal = q.answers[j];
+            const userVal = a[j];
+            const isRight = userVal === correctVal;
+            let cls = 'review-opt' + (isRight ? ' correct' : ' wrong');
+            return `
+              <div class="${cls}">
+                <span class="review-opt-letter">${correctVal ? 'Sí' : 'No'}</span>
+                <span>${escapeHtml(stmt)} ${!isRight ? `(Respondiste: ${userVal === true ? 'Sí' : userVal === false ? 'No' : '—'})` : ''}</span>
+              </div>
+            `;
+          }).join('');
+        } else if (qType === 'dropdown') {
+          const a = ans || [];
+          optionsHtml = q.fields.map((field, j) => {
+            const correctVal = q.correctAnswers[j];
+            const userVal = a[j] || '';
+            const isRight = userVal.trim().toLowerCase() === correctVal.trim().toLowerCase();
+            let cls = 'review-opt' + (isRight ? ' correct' : ' wrong');
+            return `
+              <div class="${cls}">
+                <span class="review-opt-letter">${isRight ? '✓' : '✗'}</span>
+                <span><strong>${escapeHtml(field)}:</strong> ${escapeHtml(correctVal)} ${!isRight ? `(Respondiste: ${escapeHtml(userVal) || '—'})` : ''}</span>
+              </div>
+            `;
+          }).join('');
+        }
+        return `
         <div class="review-item">
           <div class="review-num">PREGUNTA ${i + 1} · ${isCorrect ? '✓ Correcta' : '✗ Errada'}</div>
           <div class="review-q">${escapeHtml(q.q)}</div>
-          <div class="review-options">
-            ${q.options.map((opt, j) => {
-              const letter = String.fromCharCode(65 + j);
-              const isAns = q.a.includes(j);
-              const isPicked = ans.includes(j);
-              let cls = 'review-opt';
-              if (isAns) cls += ' correct';
-              else if (isPicked) cls += ' wrong';
-              return `
-                <div class="${cls}">
-                  <span class="review-opt-letter">${letter}</span>
-                  <span>${escapeHtml(opt)}</span>
-                </div>
-              `;
-            }).join('')}
-          </div>
+          <div class="review-options">${optionsHtml}</div>
           <div class="explanation">
             <strong>Explicación</strong>
             ${escapeHtml(q.e || 'Sin explicación.')}
           </div>
         </div>
-      `).join('')}
+      `;
+      }).join('')}
     </div>
   `;
 }
@@ -1816,6 +2205,11 @@ function handleFile(file) {
 
 // ===== NORMALIZATION =====
 function normalizeQuestion(q) {
+  // Si ya tiene type, devolver tal cual (preguntas yesno/dropdown)
+  if (q.type === 'yesno' || q.type === 'dropdown') {
+    return q;
+  }
+  
   const text = q.q || q.question || q.pregunta || q.text || '';
   const opts = q.options || q.opciones || q.choices || q.respuestas || [];
   let ans = q.a || q.answer || q.correct || q.correcta || [];
@@ -1831,7 +2225,7 @@ function normalizeQuestion(q) {
     return 0;
   });
   const explanation = q.e || q.explanation || q.explicacion || q.feedback || '';
-  return { q: text, options: opts, a: ans, e: explanation };
+  return { type: q.type || 'standard', q: text, options: opts, a: ans, e: explanation };
 }
 
 // ===== UTILS =====
